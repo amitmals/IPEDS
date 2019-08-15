@@ -1,0 +1,552 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Dependencies\n",
+    "import requests\n",
+    "import json\n",
+    "from config import api_key\n",
+    "from pprint import pprint\n",
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# URL for GET requests to retrieve school data\n",
+    "base_url = \"https://api.data.gov/ed/collegescorecard/v1/schools?\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=rjhyKFWn0g9PsqjQC1dH9vRABMgQOMzdY5msysWA&school.state=CA&fields=school.name,school.state,school.zip\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create a url with a specific character id\n",
+    "# api_key = \"rjhyKFWn0g9PsqjQC1dH9vRABMgQOMzdY5msysWA\"\n",
+    "filter_by = 'school.state=CA'\n",
+    "display_fields = 'school.name,school.state,school.zip'\n",
+    "# url = base_url + \"api_key=\" + api_key + \"&id=\" + character_id + \"&fields=\" + fields\n",
+    "url = base_url + \"api_key=\" + api_key + \"&\" + filter_by + \"&fields=\" + display_fields\n",
+    "print(url)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=rjhyKFWn0g9PsqjQC1dH9vRABMgQOMzdY5msysWA&school.state=CA&fields=school.name,school.state,school.zip\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Perform a get request for this character\n",
+    "response = requests.get(url)\n",
+    "print(response.url)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{\n",
+      "    \"metadata\": {\n",
+      "        \"page\": 0,\n",
+      "        \"per_page\": 20,\n",
+      "        \"total\": 714\n",
+      "    },\n",
+      "    \"results\": [\n",
+      "        {\n",
+      "            \"school.name\": \"Newberry School of Beauty\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"91344-7401\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Merced College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"95348-2898\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Merritt College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"94619-3196\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Mills College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"94613\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"MiraCosta College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"92056-3899\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Platt College-San Diego\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"92115-3919\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Pomona College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"91711-6319\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"St John's Seminary\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"93012-2500\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Pardee RAND Graduate School\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"90401-3208\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Scripps College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"91711-3905\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"West Hills College-Coalinga\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"93210\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Institute of Technology\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"93612\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Platt College-Ontario\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"91764\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Academy of Art University\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"94105\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Chapman University\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"92866\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Concordia University-Irvine\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"92612-3203\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"California State University Maritime Academy\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"94590-8181\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"California State University-Chico\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"95929-0150\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Cuyamaca College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"92019\"\n",
+      "        },\n",
+      "        {\n",
+      "            \"school.name\": \"Citrus College\",\n",
+      "            \"school.state\": \"CA\",\n",
+      "            \"school.zip\": \"91741-1899\"\n",
+      "        }\n",
+      "    ]\n",
+      "}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Storing the JSON response within a variable\n",
+    "data = response.json()\n",
+    "print(json.dumps(data, indent=4, sort_keys=True))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "school_data = data[\"results\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[{'school.name': 'Newberry School of Beauty',\n",
+       "  'school.state': 'CA',\n",
+       "  'school.zip': '91344-7401'},\n",
+       " {'school.name': 'Merced College',\n",
+       "  'school.state': 'CA',\n",
+       "  'school.zip': '95348-2898'},\n",
+       " {'school.name': 'Merritt College',\n",
+       "  'school.state': 'CA',\n",
+       "  'school.zip': '94619-3196'},\n",
+       " {'school.name': 'Mills College', 'school.state': 'CA', 'school.zip': '94613'},\n",
+       " {'school.name': 'MiraCosta College',\n",
+       "  'school.state': 'CA',\n",
+       "  'school.zip': '92056-3899'}]"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "school_data[:5]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "NameError",
+     "evalue": "name 'd' is not defined",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-34-863561a156fc>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;31m#     del d[key]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m \u001b[0mprint\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0md\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m: name 'd' is not defined"
+     ]
+    }
+   ],
+   "source": [
+    "# d = {'school.degrees': 4, 'school.stuff': 'hi'}\n",
+    "# print(d)\n",
+    "\n",
+    "# for key in school_data:\n",
+    "#     new_key = key.replace('school.', '')\n",
+    "#     school_data[new_key] = school_data[key]\n",
+    "#     del d[key]\n",
+    "\n",
+    "# print(d)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[{'name': 'Newberry School of Beauty', 'state': 'CA', 'zip': '91344-7401'}, {'name': 'Merced College', 'state': 'CA', 'zip': '95348-2898'}, {'name': 'Merritt College', 'state': 'CA', 'zip': '94619-3196'}, {'name': 'Mills College', 'state': 'CA', 'zip': '94613'}, {'name': 'MiraCosta College', 'state': 'CA', 'zip': '92056-3899'}, {'name': 'Platt College-San Diego', 'state': 'CA', 'zip': '92115-3919'}, {'name': 'Pomona College', 'state': 'CA', 'zip': '91711-6319'}, {'name': \"St John's Seminary\", 'state': 'CA', 'zip': '93012-2500'}, {'name': 'Pardee RAND Graduate School', 'state': 'CA', 'zip': '90401-3208'}, {'name': 'Scripps College', 'state': 'CA', 'zip': '91711-3905'}, {'name': 'West Hills College-Coalinga', 'state': 'CA', 'zip': '93210'}, {'name': 'Institute of Technology', 'state': 'CA', 'zip': '93612'}, {'name': 'Platt College-Ontario', 'state': 'CA', 'zip': '91764'}, {'name': 'Academy of Art University', 'state': 'CA', 'zip': '94105'}, {'name': 'Chapman University', 'state': 'CA', 'zip': '92866'}, {'name': 'Concordia University-Irvine', 'state': 'CA', 'zip': '92612-3203'}, {'name': 'California State University Maritime Academy', 'state': 'CA', 'zip': '94590-8181'}, {'name': 'California State University-Chico', 'state': 'CA', 'zip': '95929-0150'}, {'name': 'Cuyamaca College', 'state': 'CA', 'zip': '92019'}, {'name': 'Citrus College', 'state': 'CA', 'zip': '91741-1899'}]\n"
+     ]
+    }
+   ],
+   "source": [
+    "new_school_data = []\n",
+    "\n",
+    "for school in school_data:\n",
+    "    new_school = {}\n",
+    "    new_school[\"name\"] = school[\"school.name\"]\n",
+    "    new_school[\"state\"] = school[\"school.state\"]\n",
+    "    new_school[\"zip\"]= school[\"school.zip\"]\n",
+    "    new_school_data.append(new_school)\n",
+    "print(new_school_data)\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(new_school_data) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>name</th>\n",
+       "      <th>state</th>\n",
+       "      <th>zip</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Newberry School of Beauty</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>91344-7401</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Merced College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>95348-2898</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>Merritt College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>94619-3196</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Mills College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>94613</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>MiraCosta College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>92056-3899</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Platt College-San Diego</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>92115-3919</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Pomona College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>91711-6319</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>St John's Seminary</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>93012-2500</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Pardee RAND Graduate School</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>90401-3208</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>Scripps College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>91711-3905</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>West Hills College-Coalinga</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>93210</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>Institute of Technology</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>93612</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>Platt College-Ontario</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>91764</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>Academy of Art University</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>94105</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>Chapman University</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>92866</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>Concordia University-Irvine</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>92612-3203</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>California State University Maritime Academy</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>94590-8181</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>California State University-Chico</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>95929-0150</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>Cuyamaca College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>92019</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>Citrus College</td>\n",
+       "      <td>CA</td>\n",
+       "      <td>91741-1899</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                            name state         zip\n",
+       "0                      Newberry School of Beauty    CA  91344-7401\n",
+       "1                                 Merced College    CA  95348-2898\n",
+       "2                                Merritt College    CA  94619-3196\n",
+       "3                                  Mills College    CA       94613\n",
+       "4                              MiraCosta College    CA  92056-3899\n",
+       "5                        Platt College-San Diego    CA  92115-3919\n",
+       "6                                 Pomona College    CA  91711-6319\n",
+       "7                             St John's Seminary    CA  93012-2500\n",
+       "8                    Pardee RAND Graduate School    CA  90401-3208\n",
+       "9                                Scripps College    CA  91711-3905\n",
+       "10                   West Hills College-Coalinga    CA       93210\n",
+       "11                       Institute of Technology    CA       93612\n",
+       "12                         Platt College-Ontario    CA       91764\n",
+       "13                     Academy of Art University    CA       94105\n",
+       "14                            Chapman University    CA       92866\n",
+       "15                   Concordia University-Irvine    CA  92612-3203\n",
+       "16  California State University Maritime Academy    CA  94590-8181\n",
+       "17             California State University-Chico    CA  95929-0150\n",
+       "18                              Cuyamaca College    CA       92019\n",
+       "19                                Citrus College    CA  91741-1899"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.8"
+  },
+  "varInspector": {
+   "cols": {
+    "lenName": 16,
+    "lenType": 16,
+    "lenVar": 40
+   },
+   "kernels_config": {
+    "python": {
+     "delete_cmd_postfix": "",
+     "delete_cmd_prefix": "del ",
+     "library": "var_list.py",
+     "varRefreshCmd": "print(var_dic_list())"
+    },
+    "r": {
+     "delete_cmd_postfix": ") ",
+     "delete_cmd_prefix": "rm(",
+     "library": "var_list.r",
+     "varRefreshCmd": "cat(var_dic_list()) "
+    }
+   },
+   "types_to_exclude": [
+    "module",
+    "function",
+    "builtin_function_or_method",
+    "instance",
+    "_Feature"
+   ],
+   "window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
