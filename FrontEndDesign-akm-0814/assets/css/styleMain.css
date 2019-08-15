@@ -1,0 +1,49 @@
+/* ----DEFAULT ELEMENT STYLING START---- */
+html {
+    /* Positioning */
+    position: relative;
+
+    /* Box-model */
+    min-height: 100%;
+}
+
+body {
+    /* Positioning */
+    margin-bottom: 150px;
+    background-color: black;
+    color: gray;
+
+    /* Typography */
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.navbar {
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+/* FOOTER */
+footer {
+    background-color: #1a0000;
+    color: #b6bdfc;
+    padding: 25px;
+}
+
+/* https://www.lifewire.com/stretch-background-image-3466979 */
+#bg-test {
+    border: solid 1px 1a0000;
+}
+
+.jumbotron{
+    color: white;
+    background-color: #2e0202;
+}
+
+#address-map {
+    position: relative;
+    border: 5px solid pink;
+    border-radius: 8px;
+    height: 100%;  
+    width: 100%;  /* This means "100% of the width of its container" */
+}
+
