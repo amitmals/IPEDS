@@ -1,7 +1,9 @@
 #Dependencies
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import requests
 import json
+from bson import json_util
+from bson.objectid import ObjectId
 from flask_pymongo import PyMongo
 
 #Local dependencies
@@ -13,6 +15,12 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/college_app"
 mongo = PyMongo(app)
 
+
+def toJson(data):
+    """Convert Mongo object(s) to JSON"""
+    return json.dumps(data, default=json_util.default)  
+
+
 # create route that renders index.html template
 @app.route("/")
 def home():
@@ -21,151 +29,207 @@ def home():
 
 @app.route("/schools")
 def schools():
-        # get data from API
+    # URL for GET requests to retrieve school data
     base_url = "https://api.data.gov/ed/collegescorecard/v1/schools?"
-    filter_by = 'school.state=CA'
-    display_fields = 'school.name,school.state,school.zip,location.lon,'\
-    'location.lat,2017.admissions.admission_rate.overall,2017.student.size,'\
-    'school.ownership,2017.admissions.sat_scores.midpoint.critical_reading,'\
-    'id,school.school_url,2017.admissions.sat_scores.midpoint.math,'\
-    '2017.admissions.sat_scores.midpoint.writing,2017.admissions.act_scores.midpoint.cumulative,'\
-    '2017.admissions.act_scores.midpoint.english,2017.admissions.act_scores.midpoint.math,'\
-    '2017.admissions.act_scores.midpoint.writing,2017.completion.completion_rate_4yr_150nt,'\
-    '2017.cost.attendance.academic_year,2016.cost.attendance.academic_year,2015.cost.attendance.academic_year,'\
-    '2014.cost.attendance.academic_year,2013.cost.attendance.academic_year,2013.earnings.10_yrs_after_entry.median,'\
-    '2010.academics.program_reporter.program_1.cip_6_digit.title,'
-
-
-    url = base_url + "api_key=" + api_key + "&" + filter_by + "&fields=" + display_fields
-
-    programs = ['program_percentage.agriculture',
-    'program_percentage.resources',
-    'program_percentage.architecture',
-    'program_percentage.ethnic_cultural_gender',
-    'program_percentage.communication',
-    'program_percentage.communications_technology',
-    'program_percentage.computer',
-    'program_percentage.personal_culinary',
-    'program_percentage.education',
-    'program_percentage.engineering',
-    'program_percentage.engineering_technology',
-    'program_percentage.language',
-    'program_percentage.family_consumer_science',
-    'program_percentage.legal',
-    'program_percentage.english',
-    'program_percentage.humanities',
-    'program_percentage.library',
-    'program_percentage.biological',
-    'program_percentage.mathematics',
-    'program_percentage.military',
-    'program_percentage.multidiscipline',
-    'program_percentage.parks_recreation_fitness',
-    'program_percentage.philosophy_religious',
-    'program_percentage.theology_religious_vocation',
-    'program_percentage.physical_science',
-    'program_percentage.science_technology',
-    'program_percentage.psychology',
-    'program_percentage.security_law_enforcement',
-    'program_percentage.public_administration_social_service',
-    'program_percentage.social_science',
-    'program_percentage.construction',
-    'program_percentage.mechanic_repair_technology',
-    'program_percentage.precision_production',
-    'program_percentage.transportation',
-    'program_percentage.visual_performing',
-    'program_percentage.health',
-    'program_percentage.business_marketing',
-    'program_percentage.history']
-
-    string = '2017.academics.'
-    program_list = [string + x for x in programs]
-    sentence = ','.join(program_list)
-    url_string = url + sentence
-
-    response = requests.get(url_string)
-    data = response.json()
-    school_data = data["results"]
     
-    new_school_data = []
+    # Filter by School "id"
+    sid = "164924"
 
-    for school in school_data:
-        new_school = {}
-        new_school["name"] = school["school.name"]
-        new_school["state"] = school["school.state"]
-        new_school["zip"] = school["school.zip"]
-        new_school["lon"] = school["location.lon"]
-        new_school["lat"] = school["location.lat"]
-        new_school["amdissions_rate"] = school["2017.admissions.admission_rate.overall"]
-        new_school["size"] = school["2017.student.size"]
-        new_school["ownership"] = school["school.ownership"]
-        new_school["sat_reading"] = school["2017.admissions.sat_scores.midpoint.critical_reading"]
-        new_school["id"] = school["id"]
-        new_school["school_url"] = school["school.school_url"]
-        new_school["sat_math"] = school["2017.admissions.sat_scores.midpoint.math"]
-        new_school["sat_writing"] = school["2017.admissions.sat_scores.midpoint.writing"]
-        new_school["act_cumulative"] = school["2017.admissions.act_scores.midpoint.cumulative"]
-        new_school["act_writing"] = school["2017.admissions.act_scores.midpoint.writing"]
-        new_school["act_english"] = school["2017.admissions.act_scores.midpoint.english"]
-        new_school["act_math"] = school["2017.admissions.act_scores.midpoint.math"]
-        new_school["grad_rate"] = school["2017.completion.completion_rate_4yr_150nt"]
-        new_school["cost_2017"] = school["2017.cost.attendance.academic_year"]
-        new_school["cost_2016"] = school["2016.cost.attendance.academic_year"]
-        new_school["cost_2015"] = school["2015.cost.attendance.academic_year"]
-        new_school["cost_2014"] = school["2014.cost.attendance.academic_year"]
-        new_school["cost_2013"] = school["2013.cost.attendance.academic_year"]
-        new_school["earnings"] = school["2013.earnings.10_yrs_after_entry.median"]
-        new_school["top_program"] = school["2010.academics.program_reporter.program_1.cip_6_digit.title"]
-        new_school["agriculture"] = school["2017.academics.program_percentage.agriculture"]
-        new_school["resources"] = school["2017.academics.program_percentage.resources"]
-        new_school["architecture"] = school["2017.academics.program_percentage.architecture"]
-        new_school["ethnic_cultural_gender"] = school["2017.academics.program_percentage.ethnic_cultural_gender"]
-        new_school["communication"] = school["2017.academics.program_percentage.communication"]
-        new_school["communications_technology"] = school["2017.academics.program_percentage.communications_technology"]
-        new_school["computer"] = school["2017.academics.program_percentage.computer"]
-        new_school["personal_culinary"] = school["2017.academics.program_percentage.personal_culinary"]
-        new_school["education"] = school["2017.academics.program_percentage.education"]
-        new_school["engineering"] = school["2017.academics.program_percentage.engineering"]
-        new_school["engineering_technology"] = school["2017.academics.program_percentage.engineering_technology"]
-        new_school["language"] = school["2017.academics.program_percentage.language"]
-        new_school["family_consumer_science"] = school["2017.academics.program_percentage.family_consumer_science"]
-        new_school["legal"] = school["2017.academics.program_percentage.legal"]
-        new_school["english"] = school["2017.academics.program_percentage.english"]
-        new_school["humanities"] = school["2017.academics.program_percentage.humanities"]
-        new_school["library"] = school["2017.academics.program_percentage.library"]
-        new_school["biological"] = school["2017.academics.program_percentage.biological"]
-        new_school["mathematics"] = school["2017.academics.program_percentage.mathematics"]
-        new_school["military"] = school["2017.academics.program_percentage.military"]
-        new_school["multidiscipline"] = school["2017.academics.program_percentage.multidiscipline"]
-        new_school["parks_recreation_fitness"] = school["2017.academics.program_percentage.parks_recreation_fitness"]
-        new_school["philosophy_religious"] = school["2017.academics.program_percentage.philosophy_religious"]
-        new_school["theology_religious_vocation"] = school["2017.academics.program_percentage.theology_religious_vocation"]
-        new_school["physical_science"] = school["2017.academics.program_percentage.physical_science"]
-        new_school["science_technology"] = school["2017.academics.program_percentage.science_technology"]
-        new_school["psychology"] = school["2017.academics.program_percentage.psychology"]
-        new_school["security_law_enforcement"] = school["2017.academics.program_percentage.security_law_enforcement"]
-        new_school["public_administration_social_service"] = school["2017.academics.program_percentage.public_administration_social_service"]
-        new_school["social_science"] = school["2017.academics.program_percentage.social_science"]
-        new_school["construction"] = school["2017.academics.program_percentage.construction"]
-        new_school["mechanic_repair_technology"] = school["2017.academics.program_percentage.mechanic_repair_technology"]
-        new_school["precision_production"] = school["2017.academics.program_percentage.precision_production"]
-        new_school["transportation"] = school["2017.academics.program_percentage.transportation"]
-        new_school["visual_performing"] = school["2017.academics.program_percentage.visual_performing"]
-        new_school["health"] = school["2017.academics.program_percentage.health"]
-        new_school["business_marketing"] = school["2017.academics.program_percentage.business_marketing"]
-        new_school["history"] = school["2017.academics.program_percentage.history"]
+    # FULL URL
+    url = base_url + "api_key=" + api_key + "&id=" + sid
 
-        new_school_data.append(new_school)
-        # print(new_school_data)
+    # Perform a get request for this character
+    response = requests.get(url)
+    # Storing the JSON response within a variable
+    data = response.json()
+
+    school_data = []
+
+    for i in range(len(data["results"])):
+        s_id = data["results"][i]["id"]
+        
+        #SCHOOL DATA
+        school_name = data["results"][i]["school"]["name"]
+        url = data["results"][i]["school"]["school_url"]
+        city = data["results"][i]["school"]['city']
+        state = data["results"][i]["school"]['state']
+        zip_code = data["results"][i]["school"]['zip']
+        lon = data["results"][i]["location"]["lon"]
+        lat = data["results"][i]["location"]["lat"]
+        ft_faculty_rate = data["results"][i]["school"]['ft_faculty_rate']
+        locale = data["results"][i]["school"]['locale']
+        title_iv_eligibility = data["results"][i]["school"]['title_iv']['eligibility_type']
+        highest_degree = data["results"][i]["school"]['degrees_awarded']['highest']
+        ownership = data["results"][i]["school"]['ownership']    
+        
+        ##GRAD RATE AND EARNINGS
+        completion_rate = data["results"][i]["latest"]["completion"]["rate_suppressed"]["overall"]
+        earnings_mean = data["results"][i]["latest"]["earnings"]["9_yrs_after_entry"]["mean_earnings"]
+        earning_over_25k = data["results"][i]["latest"]["earnings"]["9_yrs_after_entry"]["percent_greater_than_25000"]
+        
+        ##COST
+        cost_attendance = data["results"][i]["latest"]["cost"]["attendance"]["academic_year"]
+        tuition_in_state = data["results"][i]["latest"]["cost"]["tuition"]["in_state"]
+        tuition_out_of_state = data["results"][i]["latest"]["cost"]["tuition"]["out_of_state"]
+        
+        ##DEMOGRAPHICS
+        size = data["results"][i]["latest"]["student"]["size"]
+        black = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["black"]
+        asian = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["asian"]
+        white = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["white"]
+        hispanic = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["hispanic"]
+        asian_pacific_islander = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["asian_pacific_islander"]
+        unknown = data["results"][i]["latest"]["student"]["demographics"]["race_ethnicity"]["unknown"]
+        women = data["results"][i]["latest"]["student"]["demographics"]["women"]
+        men = data["results"][i]["latest"]["student"]["demographics"]["men"]
+        
+        ##PROGRAMS
+        education = data["results"][i]["latest"]["academics"]["program_percentage"]["education"]
+        business_marketing = data["results"][i]["latest"]["academics"]["program_percentage"]["business_marketing"]
+        mathematics = data["results"][i]["latest"]["academics"]["program_percentage"]["mathematics"]
+        communications_technology = data["results"][i]["latest"]["academics"]["program_percentage"]["communications_technology"]
+        language = data["results"][i]["latest"]["academics"]["program_percentage"]["language"]
+        visual_performing = data["results"][i]["latest"]["academics"]["program_percentage"]["visual_performing"]
+        engineering_technology = data["results"][i]["latest"]["academics"]["program_percentage"]["engineering_technology"]
+        parks_recreation_fitness = data["results"][i]["latest"]["academics"]["program_percentage"]["parks_recreation_fitness"]
+        agriculture = data["results"][i]["latest"]["academics"]["program_percentage"]["agriculture"]
+        security_law_enforcement = data["results"][i]["latest"]["academics"]["program_percentage"]["security_law_enforcement"]
+        computer = data["results"][i]["latest"]["academics"]["program_percentage"]["computer"]
+        precision_production = data["results"][i]["latest"]["academics"]["program_percentage"]["precision_production"]
+        humanities = data["results"][i]["latest"]["academics"]["program_percentage"]["humanities"]
+        library = data["results"][i]["latest"]["academics"]["program_percentage"]["library"]
+        psychology = data["results"][i]["latest"]["academics"]["program_percentage"]["psychology"]
+        social_science = data["results"][i]["latest"]["academics"]["program_percentage"]["social_science"]
+        legal = data["results"][i]["latest"]["academics"]["program_percentage"]["legal"]                    
+        english = data["results"][i]["latest"]["academics"]["program_percentage"]["english"]
+        construction = data["results"][i]["latest"]["academics"]["program_percentage"]["construction"]
+        military = data["results"][i]["latest"]["academics"]["program_percentage"]["military"]
+        communication = data["results"][i]["latest"]["academics"]["program_percentage"]["communication"]
+        public_administration_social_service = data["results"][i]["latest"]["academics"]["program_percentage"]["public_administration_social_service"]
+        architecture = data["results"][i]["latest"]["academics"]["program_percentage"]["architecture"]
+        ethnic_cultural_gender = data["results"][i]["latest"]["academics"]["program_percentage"]["ethnic_cultural_gender"]
+        resources = data["results"][i]["latest"]["academics"]["program_percentage"]["resources"]
+        health = data["results"][i]["latest"]["academics"]["program_percentage"]['health']
+        engineering = data["results"][i]["latest"]["academics"]["program_percentage"]['engineering']
+        history = data["results"][i]["latest"]["academics"]["program_percentage"]['history']
+        theology_religious_vocation = data["results"][i]["latest"]["academics"]["program_percentage"]['theology_religious_vocation']
+        transportation = data["results"][i]["latest"]["academics"]["program_percentage"]['transportation']
+        physical_science = data ["results"][i]["latest"]["academics"]["program_percentage"]['physical_science']
+        science_technology = data["results"][i]["latest"]["academics"]["program_percentage"]['science_technology']
+        biological = data["results"][i]["latest"]["academics"]["program_percentage"]['biological']
+        family_consumer_science = data["results"][i]["latest"]["academics"]["program_percentage"]['family_consumer_science']
+        philosophy_religious = data["results"][i]["latest"]["academics"]["program_percentage"]['philosophy_religious']
+        personal_culinary = data["results"][i]["latest"]["academics"]["program_percentage"]['personal_culinary']
+        multidiscipline = data["results"][i]["latest"]["academics"]["program_percentage"]['multidiscipline']
+        mechanic_repair_technology = data["results"][i]["latest"]["academics"]["program_percentage"]['mechanic_repair_technology']
+        
+        ##ADMISSIONS
+        avg_sat = data["results"][i]["latest"]["admissions"]['sat_scores']['average']['overall']
+        mid_act = data["results"][i]["latest"]["admissions"]['act_scores']['midpoint']['cumulative']
+        admission_rate = data["results"][i]["latest"]["admissions"]['admission_rate']['overall']
+        
+        ##DEBT
+        students_with_any_loan = data["results"][i]["latest"]["aid"]['students_with_any_loan']
+        median_debt = data["results"][i]["latest"]["aid"]['median_debt_suppressed']['overall']
+        default_rate = data["results"][i]["latest"]["repayment"]['3_yr_default_rate']
+
+        
+
+        school_data.append({"ID": s_id,
+                            "Name": school_name,
+                            "Website": url,
+                            "City": city,
+                            "State": state,
+                            "Zip": zip_code,
+                            "Longitude": lon,
+                            "Latitude": lat,
+                            "Faculty Rate": ft_faculty_rate,
+                            "Locale": locale,
+                            "Title IV": title_iv_eligibility,
+                            "Highest Degree": highest_degree,
+                            "Ownership": ownership,
+                            "Completion Rate": completion_rate,
+                            "Pct Earning > $25K": earning_over_25k,
+                            "Avg Earnings (9yrs)": earnings_mean,
+                            "Cost Attendance": cost_attendance,
+                            "In State Tuition": tuition_in_state,
+                            "Out-of-State Tuition": tuition_out_of_state,
+                            "Total Students": size,
+                            "Black": black,
+                            "Asian": asian,
+                            "White": white,
+                            "Hispanic": hispanic,
+                            "Islander": asian_pacific_islander,
+                            "Unknown": unknown,
+                            "Women": women,
+                            "Men": men,
+                            "education": education,
+                            "mathematics": mathematics,
+                            "business_marketing": business_marketing,
+                            "communications_technology": communications_technology,
+                            "language": language,
+                            "visual_performing": visual_performing,
+                            "engineering_technology": engineering_technology,
+                            "parks_recreation_fitness": parks_recreation_fitness,
+                            "agriculture": agriculture,
+                            "security_law_enforcement": security_law_enforcement,
+                            "computer": computer,
+                            "precision_production": precision_production,
+                            "humanities": humanities,
+                            "library": library,
+                            "psychology": psychology,
+                            "social_science": social_science,
+                            "legal": legal,
+                            "english": english,
+                            "construction": construction,
+                            "military": military,
+                            "communication": communication,
+                            "public_administration_social_service": public_administration_social_service,
+                            "architecture": architecture,
+                            "ethnic_cultural_gender": ethnic_cultural_gender,
+                            "resources": resources,
+                            "health": health,
+                            "engineering": engineering,
+                            "history": history,
+                            "theology_religious_vocation": theology_religious_vocation,
+                            "transportation": transportation,
+                            "physical_science": physical_science,
+                            "science_technology": science_technology,
+                            "biological": biological,
+                            "family_consumer_science": family_consumer_science,
+                            "philosophy_religious": philosophy_religious,
+                            "personal_culinary": personal_culinary,
+                            "multidiscipline": multidiscipline,
+                            "mechanic_repair_technology": mechanic_repair_technology,
+                            "Avg SAT": avg_sat,
+                            "Mid ACT": mid_act,
+                            "Admission Rate": admission_rate,
+                            "Pct Students with Loan": students_with_any_loan,
+                            "Median Debt": median_debt,
+                            "Default Rate": default_rate,
+                        })
+        print(school_data)
+
+        # new_school_data.append(new_school)
+        # # print(new_school_data)
 
     colleges = mongo.db.colleges
     colleges.remove()
-    colleges.insert_many(new_school_data)
+    colleges.insert_many(school_data)
+    # colleges.insert_many(new_school_data)
     
-    print(new_school_data)
+    # print(new_school_data)
     return "RETURN!"
 
 
-schools()
+@app.route("/coldata")
+def coldata():
+    colleges = mongo.db.colleges
+    results = colleges.find()
+    all_data = [result for result in results]
+
+    return toJson(all_data)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
