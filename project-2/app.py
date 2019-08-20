@@ -206,6 +206,7 @@ def schools():
                             })
         return(school_data)
 
+
             # new_school_data.append(new_school)
             # # print(new_school_data)
     colleges = mongo.db.colleges
@@ -215,7 +216,9 @@ def schools():
         college_data = api_call(pg)
         colleges.insert_many(college_data)
         print(pg)
-        return "RETURN!"
+
+    return "RETURN!"
+
 
 
 @app.route("/coldata")
@@ -223,7 +226,7 @@ def coldata():
     colleges = mongo.db.colleges
     results = colleges.find()
     all_data = [result for result in results]
-    print(all_data)
+    # print(all_data)
     return toJson(all_data)
 
 
