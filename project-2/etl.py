@@ -48,6 +48,7 @@ def schools():
     school_responses = response['metadata']['total']
     max_pages = 20
     pages = int(np.ceil(school_responses / max_pages))
+    print("Number of Calls Needed to Paginate")
     print(pages)    
 
     def api_call(page):
@@ -227,15 +228,13 @@ def schools():
 
     for page_iteration in range(pages):
         college_data = api_call(page_iteration)
+        print("page -----------------------------------------")
         print(page_iteration)
-        print("next page --------------------------")
-        for college in college_data:
-            collection.insert_one(college)
-            print(college)
+        print("next page -----------------------------------------")
+        collection.insert_many(college_data)
+        print("LOADED!")
     
-    print("LOADED!")
-    return "LOADED!"
-
+    return "API CALLS COMPLETE"
 
 
 @app.route("/coldata")
