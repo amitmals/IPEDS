@@ -5,6 +5,8 @@ import json
 from bson import json_util
 from bson.objectid import ObjectId
 from flask_pymongo import PyMongo
+import pandas as pd
+import numpy as np
 
 #Local dependencies
 from config import api_key
@@ -12,8 +14,9 @@ from config import api_key
 app = Flask(__name__)
 
 # Use flask_pymongo to set up mongo connection
-app.config["MONGO_URI"] = "mongodb://localhost:27017/college_app"
+app.config["MONGO_URI"] = "mongodb://localhost:27017/schools_app"
 mongo = PyMongo(app)
+
 
 
 def toJson(data):
@@ -32,9 +35,17 @@ def schools():
 
     # URL for GET requests to retrieve school data
     base_url = "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=" + api_key
-    # Filter by State
+    # Filter by State and Limit by Size
     ST = "&school.state=CA"
-    filter_url = base_url + ST
+    min_size = "&latest.student.size__range=1000.."
+    filter_url = base_url + ST + min_size
+    
+    #Calculate number of API calls needed to capture all pages of data
+    response = requests.get(filter_url).json()
+    school_responses = response['metadata']['total']
+    max_pages = 20
+    pages = int(np.ceil(school_responses / max_pages))
+    # print(pages)
 
     def api_call(page):
     
@@ -207,15 +218,19 @@ def schools():
         return(school_data)
 
 
-            # new_school_data.append(new_school)
-            # # print(new_school_data)
-    colleges = mongo.db.colleges
-    colleges.remove()
-
-    for pg in range(10):
-        college_data = api_call(pg)
-        colleges.insert_many(college_data)
-        print(pg)
+    collection = mongo.db.items
+    collection.remove()
+    
+    colleges = []
+    
+    for page_iteration in range(pages):
+        college_data = api_call(page_iteration)
+        for college in college_data:
+            colleges.append(college)
+                    # print(college)    
+    college_df = pd.DataFrame(colleges)
+    sorted_df = college_df.sort_values("Name")
+    collection.insert_many(sorted_df.to_dict('records'))
 
     return "RETURN!"
 
@@ -223,8 +238,8 @@ def schools():
 
 @app.route("/coldata")
 def coldata():
-    colleges = mongo.db.colleges
-    results = colleges.find()
+    collection = mongo.db.items
+    results = collection.find()
     all_data = [result for result in results]
     # print(all_data)
     return toJson(all_data)
