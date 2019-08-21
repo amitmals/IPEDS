@@ -35,21 +35,11 @@ def schools():
 
     # URL for GET requests to retrieve school data
     base_url = "https://api.data.gov/ed/collegescorecard/v1/schools?api_key=" + api_key
-    # Filter by State
-    ST = "&school.state=CA"
-    min_size = "&latest.student.size__range=1000.."
-    filter_url = base_url + ST + min_size
-    # filter_url = base_url
+    
+    # Filters
+    min_size = "&latest.student.size__range=10000.."
+    filter_url = base_url + min_size
 
-    #Get total results count
-    response = requests.get(filter_url).json()
-    time.sleep(10)
-    print("pause for 10 seconds for results counter")
-    school_responses = response['metadata']['total']
-    max_pages = 20
-    pages = int(np.ceil(school_responses / max_pages))
-    print("Number of Calls Needed to Paginate")
-    print(pages)    
 
     def api_call(page):
     
@@ -221,19 +211,30 @@ def schools():
                             })
         return(school_data)
 
+    #Get total results count
+    response = requests.get(filter_url).json()
+    time.sleep(10)
+    print("pause for 10 seconds for results counter")
+    school_responses = response['metadata']['total']
+    print("total number of objects to parse")
+    print(school_responses)
+    max_pages = 20
+    pages = int(np.ceil(school_responses / max_pages))
+    print("Number of Calls neded to Paginate")
+    print(pages)
 
     # Clear out collection, Paginate API, Insert into MongoDB collection
+    mongo.db.items.drop()
     collection = mongo.db.items
-    collection.remove()
+    # collection.remove()
 
     for page_iteration in range(pages):
         college_data = api_call(page_iteration)
-        print("page -----------------------------------------")
+        print("loading page -----------------------------------------")
         print(page_iteration)
-        print("next page -----------------------------------------")
         collection.insert_many(college_data)
-        print("LOADED!")
-    
+
+    print("ETL COMPLETE")
     return "API CALLS COMPLETE"
 
 
